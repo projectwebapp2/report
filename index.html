@@ -42,7 +42,7 @@
     <!-- Navbar -->
     <nav class="bg-blue-700 text-white p-4 sticky top-0 z-30 shadow-md flex justify-between items-center">
         <div>
-            <h1 class="text-xl font-bold"><i class="fa-solid fa-save"></i> ส่งผลคะแนน</h1>
+            <h1 class="text-xl font-bold"><i class="fa-solid fa-file"></i> ส่งรายงานผลคะแนน</h1>
             <p class="text-xs text-blue-200">ข้อมูลเลือกตั้ง ส.ส. และ ออกเสียงประชามติ</p>
         </div>
         <button onclick="clearDraft()" class="text-xs bg-blue-800 px-3 py-1 rounded text-blue-200 hover:text-white">
@@ -58,7 +58,7 @@
             <div class="grid grid-cols-2 gap-4">
                 <div class="col-span-2">
                     <label class="block text-sm font-semibold text-gray-600 mb-1">แขวง</label>
-                    <select id="district" class="w-full p-3 text-lg rounded-lg border bg-gray-50 focus:ring-2 focus:ring-blue-500" onchange="updateUnits(); saveDraft();" required>
+                    <select id="district" class="w-full p-3 text-lg rounded-lg border bg-gray-50 focus:ring-2 focus:ring-green-500" onchange="updateUnits(); saveDraft();" required>
                         <option value="">เลือกแขวง...</option>
                         <option value="บางคอแหลม">บางคอแหลม</option>
                         <option value="วัดพระยาไกร">วัดพระยาไกร</option>
@@ -67,7 +67,7 @@
                 </div>
                 <div class="col-span-2">
                     <label class="block text-sm font-semibold text-gray-600 mb-1">หน่วยที่</label>
-                    <select id="unitNo" class="w-full p-3 text-lg rounded-lg border bg-gray-50 focus:ring-2 focus:ring-blue-500" disabled required onchange="saveDraft()">
+                    <select id="unitNo" class="w-full p-3 text-lg rounded-lg border bg-gray-50 focus:ring-2 focus:ring-green-500" disabled required onchange="saveDraft()">
                         <option value="">เลือกแขวงก่อน</option>
                     </select>
                 </div>
@@ -76,9 +76,9 @@
 
         <!-- 2. คะแนน ส.ส. -->
         <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-            <div class="bg-blue-600 text-white p-3 font-bold flex justify-between items-center">
+            <div class="bg-green-600 text-white p-3 font-bold flex justify-between items-center">
                 <span><i class="fa-solid fa-user-tie"></i> ส่วนที่ 1: เลือกตั้ง ส.ส.</span>
-                <span class="text-xs bg-blue-500 px-2 py-1 rounded">สำคัญ</span>
+                <span class="text-xs bg-green-500 px-2 py-1 rounded">สำคัญ</span>
             </div>
             <div class="p-5 space-y-4">
                 <div class="grid grid-cols-2 gap-4">
@@ -87,8 +87,8 @@
                         <input type="number" name="mp_eligible" inputmode="numeric" class="w-full p-2 border rounded-lg text-center text-xl font-bold bg-gray-50" placeholder="0" oninput="saveDraft()">
                     </div>
                     <div>
-                        <label class="text-blue-600 font-bold">ผู้มาใช้สิทธิ</label>
-                        <input type="number" name="mp_voted" inputmode="numeric" class="w-full p-2 border-2 border-blue-200 rounded-lg text-center text-xl font-bold text-blue-700 bg-blue-50 focus:bg-white" placeholder="0" required oninput="saveDraft()">
+                        <label class="text-green-600 font-bold">ผู้มาใช้สิทธิ</label>
+                        <input type="number" name="mp_voted" inputmode="numeric" class="w-full p-2 border-2 border-green-200 rounded-lg text-center text-xl font-bold text-green-700 bg-green-50 focus:bg-white" placeholder="0" required oninput="saveDraft()">
                     </div>
                 </div>
                 
@@ -109,33 +109,33 @@
 
                 <!-- Image Uploads MP -->
                 <div class="space-y-2 pt-2">
-                    <p class="font-bold text-gray-500 mb-2">📸 ถ่ายภาพหลักฐาน (ส.ส.) <span class="text-xs font-normal text-blue-500">*แตะซ้ำเพื่อเพิ่มรูป</span></p>
+                    <p class="font-bold text-gray-500 mb-2">📸 ถ่ายภาพหลักฐาน (ส.ส.) <span class="text-xs font-normal text-green-500">*แตะซ้ำเพื่อเพิ่มรูป</span></p>
                     <div class="grid grid-cols-2 gap-3">
                         <!-- Custom File Button 1 -->
                         <label class="border-2 border-dashed border-gray-300 rounded-lg p-3 flex flex-col items-center justify-center cursor-pointer hover:bg-gray-50 transition-all text-center h-28 relative overflow-visible" id="box_mp_1">
-                            <div class="icon-container"><i class="fa-solid fa-camera text-blue-500 text-xl mb-1"></i></div>
-                            <span class="text-xs font-bold text-gray-600 leading-tight label-text">แบบแบ่งเขต<br>(5/18)</span>
+                            <div class="icon-container"><i class="fa-solid fa-file-contract text-green-500 text-xl mb-1"></i></div>
+                            <span class="text-xs font-bold text-gray-600 leading-tight label-text">แบบแบ่งเขต<br>(ส.ส.5/18)</span>
                             <span class="text-[10px] text-gray-400 mt-1 status-text">แตะเพื่อถ่าย</span>
                             <input type="file" id="file_mp_1" accept="image/*" capture="environment" class="hidden" onchange="handleFileSelect(this, 'box_mp_1')">
                         </label>
 
                         <label class="border-2 border-dashed border-gray-300 rounded-lg p-3 flex flex-col items-center justify-center cursor-pointer hover:bg-gray-50 transition-all text-center h-28 relative overflow-visible" id="box_mp_2">
-                            <div class="icon-container"><i class="fa-solid fa-list-check text-blue-500 text-xl mb-1"></i></div>
-                            <span class="text-xs font-bold text-gray-600 leading-tight label-text">ขีดคะแนนแบ่งเขต<br>(5/11)</span>
+                            <div class="icon-container"><i class="fa-solid fa-list-check text-green-500 text-xl mb-1"></i></div>
+                            <span class="text-xs font-bold text-gray-600 leading-tight label-text">ขีดคะแนนแบ่งเขต<br>(ส.ส.5/11)</span>
                             <span class="text-[10px] text-gray-400 mt-1 status-text">แตะเพื่อถ่าย</span>
                             <input type="file" id="file_mp_2" accept="image/*" capture="environment" class="hidden" onchange="handleFileSelect(this, 'box_mp_2')">
                         </label>
 
                         <label class="border-2 border-dashed border-gray-300 rounded-lg p-3 flex flex-col items-center justify-center cursor-pointer hover:bg-gray-50 transition-all text-center h-28 relative overflow-visible" id="box_mp_3">
-                            <div class="icon-container"><i class="fa-solid fa-users-rectangle text-indigo-500 text-xl mb-1"></i></div>
-                            <span class="text-xs font-bold text-gray-600 leading-tight label-text">บัญชีรายชื่อ<br>(5/18 บช)</span>
+                            <div class="icon-container"><i class="fa-solid fa-file-contract text-pink-500 text-xl mb-1"></i></div>
+                            <span class="text-xs font-bold text-gray-600 leading-tight label-text">บัญชีรายชื่อ<br>(ส.ส.5/18 บช)</span>
                             <span class="text-[10px] text-gray-400 mt-1 status-text">แตะเพื่อถ่าย</span>
                             <input type="file" id="file_mp_3" accept="image/*" capture="environment" class="hidden" onchange="handleFileSelect(this, 'box_mp_3')">
                         </label>
 
                         <label class="border-2 border-dashed border-gray-300 rounded-lg p-3 flex flex-col items-center justify-center cursor-pointer hover:bg-gray-50 transition-all text-center h-28 relative overflow-visible" id="box_mp_4">
-                            <div class="icon-container"><i class="fa-solid fa-list-check text-indigo-500 text-xl mb-1"></i></div>
-                            <span class="text-xs font-bold text-gray-600 leading-tight label-text">ขีดคะแนน บช<br>(5/11 บช)</span>
+                            <div class="icon-container"><i class="fa-solid fa-list-check text-pink-500 text-xl mb-1"></i></div>
+                            <span class="text-xs font-bold text-gray-600 leading-tight label-text">ขีดคะแนน บช<br>(ส.ส.5/11 บช)</span>
                             <span class="text-[10px] text-gray-400 mt-1 status-text">แตะเพื่อถ่าย</span>
                             <input type="file" id="file_mp_4" accept="image/*" capture="environment" class="hidden" onchange="handleFileSelect(this, 'box_mp_4')">
                         </label>
@@ -175,7 +175,7 @@
 
                 <!-- Image Uploads Ref -->
                 <div class="space-y-2 pt-2">
-                    <p class="font-bold text-gray-500 mb-2">📸 ถ่ายภาพหลักฐาน (ประชามติ)</p>
+                    <p class="font-bold text-gray-500 mb-2">📸 ถ่ายภาพหลักฐาน (ประชามติ) <span class="text-xs font-normal text-green-500">*แตะซ้ำเพื่อเพิ่มรูป</span></p>
                     <div class="grid grid-cols-2 gap-3">
                         <label class="border-2 border-dashed border-gray-300 rounded-lg p-3 flex flex-col items-center justify-center cursor-pointer hover:bg-gray-50 transition-all text-center h-28 relative overflow-visible" id="box_ref_1">
                             <div class="icon-container"><i class="fa-solid fa-file-contract text-orange-500 text-xl mb-1"></i></div>
