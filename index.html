@@ -20,20 +20,27 @@
         /* Badge สำหรับนับจำนวนรูป */
         .count-badge {
             position: absolute;
-            top: -8px;
-            right: -8px;
+            top: -10px;
+            right: -10px;
             background-color: #16a34a; /* Green */
             color: white;
+            border: 2px solid white;
             border-radius: 50%;
-            width: 24px;
-            height: 24px;
+            width: 28px;
+            height: 28px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 12px;
+            font-size: 14px;
             font-weight: bold;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+            box-shadow: 0 4px 6px rgba(0,0,0,0.3);
             z-index: 20;
+            animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        @keyframes popIn {
+            0% { transform: scale(0); }
+            100% { transform: scale(1); }
         }
     </style>
 </head>
@@ -54,10 +61,10 @@
         
         <!-- 1. หน่วยเลือกตั้ง -->
         <div class="bg-white p-5 rounded-xl shadow-sm border border-gray-200">
-            <h2 class="text-lg font-bold text-gray-700 mb-4 flex items-center gap-2"><i class="fa-solid fa-map-location-dot"></i> หน่วยเลือกตั้ง</h2>
+            <h2 class="text-lg font-bold text-blue-700 mb-4 flex items-center gap-2"><i class="fa-solid fa-map-location-dot"></i> หน่วยเลือกตั้ง</h2>
             <div class="grid grid-cols-2 gap-4">
                 <div class="col-span-2">
-                    <label class="block text-sm font-semibold text-gray-600 mb-1">แขวง</label>
+                    <label class="block font-semibold text-gray-600 mb-1">แขวง</label>
                     <select id="district" class="w-full p-3 text-lg rounded-lg border bg-gray-50 focus:ring-2 focus:ring-green-500" onchange="updateUnits(); saveDraft();" required>
                         <option value="">เลือกแขวง...</option>
                         <option value="บางคอแหลม">บางคอแหลม</option>
@@ -66,7 +73,7 @@
                     </select>
                 </div>
                 <div class="col-span-2">
-                    <label class="block text-sm font-semibold text-gray-600 mb-1">หน่วยที่</label>
+                    <label class="block font-semibold text-gray-600 mb-1">หน่วยที่</label>
                     <select id="unitNo" class="w-full p-3 text-lg rounded-lg border bg-gray-50 focus:ring-2 focus:ring-green-500" disabled required onchange="saveDraft()">
                         <option value="">เลือกแขวงก่อน</option>
                     </select>
@@ -109,34 +116,60 @@
 
                 <!-- Image Uploads MP -->
                 <div class="space-y-2 pt-2">
-                    <p class="font-bold text-gray-500 mb-2">📸 ถ่ายภาพหลักฐาน (ส.ส.) <span class="text-xs font-normal text-green-500">*แตะซ้ำเพื่อเพิ่มรูป</span></p>
-                    <div class="grid grid-cols-2 gap-3">
+                    <p class="font-bold text-gray-500 mb-2">📸 ถ่ายภาพหลักฐาน (ส.ส.) <span class="text-xs font-normal text-green-500">*แตะซ้ำเพื่อเพิ่มรูปได้</span></p>
+                    
+                    <!-- ปรับ Grid เป็น cols-1 เพื่อให้เต็มจอ -->
+                    <div class="grid grid-cols-1 gap-4">
                         <!-- Custom File Button 1 -->
-                        <label class="border-2 border-dashed border-gray-300 rounded-lg p-3 flex flex-col items-center justify-center cursor-pointer hover:bg-gray-50 transition-all text-center h-28 relative overflow-visible" id="box_mp_1">
-                            <div class="icon-container"><i class="fa-solid fa-file-contract text-green-500 text-xl mb-1"></i></div>
-                            <span class="text-xs font-bold text-gray-600 leading-tight label-text">แบบแบ่งเขต<br>(ส.ส.5/18)</span>
-                            <span class="text-[10px] text-gray-400 mt-1 status-text">แตะเพื่อถ่าย</span>
+                        <label class="border-2 border-dashed border-gray-300 rounded-lg p-4 flex items-center justify-center cursor-pointer hover:bg-gray-50 transition-all text-center h-24 relative overflow-visible gap-4" id="box_mp_1">
+                            <div class="icon-container flex flex-col items-center">
+                                <i class="fa-solid fa-file-contract text-green-500 text-2xl mb-1"></i>
+                            </div>
+                            <div class="text-left label-text">
+                                <span class="block font-bold text-gray-700">รายงานคะแนน แบ่งเขต</span>
+                                <span class="block font-bold text-gray-700">(ส.ส.5/18)</span>								
+                                <span class="block text-sm text-gray-400">แตะเพื่อถ่ายรูป</span>
+                            </div>
+                            <div class="absolute bottom-1 right-2 hidden status-text text-[10px] text-gray-400"></div>
                             <input type="file" id="file_mp_1" accept="image/*" capture="environment" class="hidden" onchange="handleFileSelect(this, 'box_mp_1')">
                         </label>
 
-                        <label class="border-2 border-dashed border-gray-300 rounded-lg p-3 flex flex-col items-center justify-center cursor-pointer hover:bg-gray-50 transition-all text-center h-28 relative overflow-visible" id="box_mp_2">
-                            <div class="icon-container"><i class="fa-solid fa-list-check text-green-500 text-xl mb-1"></i></div>
-                            <span class="text-xs font-bold text-gray-600 leading-tight label-text">ขีดคะแนนแบ่งเขต<br>(ส.ส.5/11)</span>
-                            <span class="text-[10px] text-gray-400 mt-1 status-text">แตะเพื่อถ่าย</span>
+                        <label class="border-2 border-dashed border-gray-300 rounded-lg p-4 flex items-center justify-center cursor-pointer hover:bg-gray-50 transition-all text-center h-24 relative overflow-visible gap-4" id="box_mp_2">
+                            <div class="icon-container flex flex-col items-center">
+                                <i class="fa-solid fa-list-check text-green-500 text-2xl mb-1"></i>
+                            </div>
+                            <div class="text-left label-text">
+                                <span class="block font-bold text-gray-700">แบบขีดคะแนน แบ่งเขต</span>
+                                <span class="block font-bold text-gray-700"> (ส.ส.5/11)</span>                                
+								<span class="block text-sm text-gray-400">แตะเพื่อถ่ายรูป</span>
+                            </div>
+                            <div class="absolute bottom-1 right-2 hidden status-text text-[10px] text-gray-400"></div>
                             <input type="file" id="file_mp_2" accept="image/*" capture="environment" class="hidden" onchange="handleFileSelect(this, 'box_mp_2')">
                         </label>
 
-                        <label class="border-2 border-dashed border-gray-300 rounded-lg p-3 flex flex-col items-center justify-center cursor-pointer hover:bg-gray-50 transition-all text-center h-28 relative overflow-visible" id="box_mp_3">
-                            <div class="icon-container"><i class="fa-solid fa-file-contract text-pink-500 text-xl mb-1"></i></div>
-                            <span class="text-xs font-bold text-gray-600 leading-tight label-text">บัญชีรายชื่อ<br>(ส.ส.5/18 บช)</span>
-                            <span class="text-[10px] text-gray-400 mt-1 status-text">แตะเพื่อถ่าย</span>
+                        <label class="border-2 border-dashed border-gray-300 rounded-lg p-4 flex items-center justify-center cursor-pointer hover:bg-gray-50 transition-all text-center h-24 relative overflow-visible gap-4" id="box_mp_3">
+                            <div class="icon-container flex flex-col items-center">
+                                <i class="fa-solid fa-file-contract text-pink-500 text-2xl mb-1"></i>
+                            </div>
+                            <div class="text-left label-text">
+                                <span class="block font-bold text-gray-700">รายงานคะแนน บัญชีรายชื่อ</span>
+                                <span class="block font-bold text-gray-700"> (ส.ส.5/18 บช)</span>								
+                                <span class="block text-sm text-gray-400">แตะเพื่อถ่ายรูป</span>
+                            </div>
+                            <div class="absolute bottom-1 right-2 hidden status-text text-[10px] text-gray-400"></div>
                             <input type="file" id="file_mp_3" accept="image/*" capture="environment" class="hidden" onchange="handleFileSelect(this, 'box_mp_3')">
                         </label>
 
-                        <label class="border-2 border-dashed border-gray-300 rounded-lg p-3 flex flex-col items-center justify-center cursor-pointer hover:bg-gray-50 transition-all text-center h-28 relative overflow-visible" id="box_mp_4">
-                            <div class="icon-container"><i class="fa-solid fa-list-check text-pink-500 text-xl mb-1"></i></div>
-                            <span class="text-xs font-bold text-gray-600 leading-tight label-text">ขีดคะแนน บช<br>(ส.ส.5/11 บช)</span>
-                            <span class="text-[10px] text-gray-400 mt-1 status-text">แตะเพื่อถ่าย</span>
+                        <label class="border-2 border-dashed border-gray-300 rounded-lg p-4 flex items-center justify-center cursor-pointer hover:bg-gray-50 transition-all text-center h-24 relative overflow-visible gap-4" id="box_mp_4">
+                            <div class="icon-container flex flex-col items-center">
+                                <i class="fa-solid fa-list-check text-pink-500 text-2xl mb-1"></i>
+                            </div>
+                            <div class="text-left label-text">
+                                <span class="block font-bold text-gray-700">แบบขีดคะแนน บัญชีรายชื่อ</span>
+                                <span class="block font-bold text-gray-700">(ส.ส.5/11 บช)</span>								
+                                <span class="block text-sm text-gray-400">แตะเพื่อถ่ายรูป</span>
+                            </div>
+                            <div class="absolute bottom-1 right-2 hidden status-text text-[10px] text-gray-400"></div>
                             <input type="file" id="file_mp_4" accept="image/*" capture="environment" class="hidden" onchange="handleFileSelect(this, 'box_mp_4')">
                         </label>
                     </div>
@@ -175,19 +208,31 @@
 
                 <!-- Image Uploads Ref -->
                 <div class="space-y-2 pt-2">
-                    <p class="font-bold text-gray-500 mb-2">📸 ถ่ายภาพหลักฐาน (ประชามติ) <span class="text-xs font-normal text-green-500">*แตะซ้ำเพื่อเพิ่มรูป</span></p>
-                    <div class="grid grid-cols-2 gap-3">
-                        <label class="border-2 border-dashed border-gray-300 rounded-lg p-3 flex flex-col items-center justify-center cursor-pointer hover:bg-gray-50 transition-all text-center h-28 relative overflow-visible" id="box_ref_1">
-                            <div class="icon-container"><i class="fa-solid fa-file-contract text-orange-500 text-xl mb-1"></i></div>
-                            <span class="text-xs font-bold text-gray-600 leading-tight label-text">รายงาน อ.ส. 4/7</span>
-                            <span class="text-[10px] text-gray-400 mt-1 status-text">แตะเพื่อถ่าย</span>
+                    <p class="font-bold text-gray-500 mb-2">📸 ถ่ายภาพหลักฐาน (ประชามติ) <span class="text-xs font-normal text-green-500">*แตะซ้ำเพื่อเพิ่มรูปได้</span></p>
+                    
+                    <!-- ปรับ Grid เป็น cols-1 เพื่อให้เต็มจอ -->
+                    <div class="grid grid-cols-1 gap-4">
+                        <label class="border-2 border-dashed border-gray-300 rounded-lg p-4 flex items-center justify-center cursor-pointer hover:bg-gray-50 transition-all text-center h-24 relative overflow-visible gap-4" id="box_ref_1">
+                            <div class="icon-container flex flex-col items-center">
+                                <i class="fa-solid fa-file-contract text-orange-500 text-2xl mb-1"></i>
+                            </div>
+                            <div class="text-left label-text">
+                                <span class="block font-bold text-gray-700">รายงานคะแนน อ.ส. 4/7</span>
+                                <span class="block text-sm text-gray-400">แตะเพื่อถ่ายรูป</span>
+                            </div>
+                            <div class="absolute bottom-1 right-2 hidden status-text text-[10px] text-gray-400"></div>
                             <input type="file" id="file_ref_1" accept="image/*" capture="environment" class="hidden" onchange="handleFileSelect(this, 'box_ref_1')">
                         </label>
 
-                        <label class="border-2 border-dashed border-gray-300 rounded-lg p-3 flex flex-col items-center justify-center cursor-pointer hover:bg-gray-50 transition-all text-center h-28 relative overflow-visible" id="box_ref_2">
-                            <div class="icon-container"><i class="fa-solid fa-list-check text-orange-500 text-xl mb-1"></i></div>
-                            <span class="text-xs font-bold text-gray-600 leading-tight label-text">ขีดคะแนน อ.ส. 4/5</span>
-                            <span class="text-[10px] text-gray-400 mt-1 status-text">แตะเพื่อถ่าย</span>
+                        <label class="border-2 border-dashed border-gray-300 rounded-lg p-4 flex items-center justify-center cursor-pointer hover:bg-gray-50 transition-all text-center h-24 relative overflow-visible gap-4" id="box_ref_2">
+                            <div class="icon-container flex flex-col items-center">
+                                <i class="fa-solid fa-list-check text-orange-500 text-2xl mb-1"></i>
+                            </div>
+                            <div class="text-left label-text">
+                                <span class="block font-bold text-gray-700">แบบขีดคะแนน อ.ส. 4/5</span>
+                                <span class="block text-sm text-gray-400">แตะเพื่อถ่ายรูป</span>
+                            </div>
+                            <div class="absolute bottom-1 right-2 hidden status-text text-[10px] text-gray-400"></div>
                             <input type="file" id="file_ref_2" accept="image/*" capture="environment" class="hidden" onchange="handleFileSelect(this, 'box_ref_2')">
                         </label>
                     </div>
@@ -249,28 +294,37 @@
             
             if (input.files && input.files[0]) {
                 const file = input.files[0];
-                statusText.innerText = "กำลังย่อ...";
+                
+                // Show uploading state
+                if(statusText) {
+                   statusText.style.display = 'block';
+                   statusText.innerText = "กำลังย่อ...";
+                }
                 
                 try {
                     // ย่อรูปก่อนเก็บ
                     const compressedBase64 = await compressImage(file);
                     
-                    // เก็บรูปลง Array
-                    if (!fileStorage[boxId]) fileStorage[boxId] = [];
+                    // ตรวจสอบว่ามี Array สำหรับ Box นี้หรือยัง ถ้าไม่มีให้สร้างใหม่
+                    if (!fileStorage[boxId]) {
+                        fileStorage[boxId] = [];
+                    }
+
+                    // เพิ่มรูปลงใน Array
                     fileStorage[boxId].push({
                         name: file.name,
                         data: compressedBase64
                     });
 
-                    // อัปเดต UI
+                    // อัปเดต UI (โชว์รูป + นับจำนวน)
                     updateBoxUI(boxId, compressedBase64);
                     
-                    // Reset Input เพื่อให้เลือกรูปเดิมซ้ำได้ หรือเลือกรูปใหม่ได้
+                    // *** สำคัญ: Reset Input เพื่อให้เลือกรูปเดิมซ้ำได้ หรือเลือกรูปใหม่ได้ ***
                     input.value = '';
 
                 } catch (e) {
                     console.error(e);
-                    statusText.innerText = "Error!";
+                    if(statusText) statusText.innerText = "Error!";
                 }
             }
         }
@@ -289,42 +343,56 @@
                 box.style.backgroundPosition = 'center';
                 box.classList.add('border-blue-500', 'ring-2', 'ring-blue-100');
                 
-                // ซ่อนไอคอนเดิม แต่เก็บ label ไว้
-                iconContainer.style.display = 'none';
-                labelText.style.display = 'none'; // ซ่อนข้อความเพื่อให้เห็นรูปชัด
+                // ซ่อนไอคอนและข้อความเดิมเพื่อให้เห็นรูปชัด (หรือจะทำให้จางลงก็ได้)
+                if(iconContainer) iconContainer.style.opacity = '0';
+                if(labelText) labelText.style.opacity = '0';
                 
                 // แสดงสถานะ "แตะเพื่อเพิ่ม"
-                statusText.innerText = 'แตะเพื่อเพิ่ม';
-                statusText.className = 'text-xs font-bold text-white drop-shadow-md absolute bottom-1 bg-black/50 px-2 rounded-full';
-                statusText.style.display = 'block';
-
-                // สร้างหรืออัปเดต Badge นับจำนวน
-                let badge = box.querySelector('.count-badge');
-                if (!badge) {
-                    badge = document.createElement('div');
-                    badge.className = 'count-badge';
-                    box.appendChild(badge);
+                if(statusText) {
+                    statusText.innerText = 'แตะเพื่อเพิ่ม';
+                    statusText.className = 'text-xs font-bold text-white drop-shadow-md absolute bottom-1 bg-black/50 px-2 rounded-full right-2';
+                    statusText.style.display = 'block';
                 }
-                badge.innerText = count;
+
+                // --- แก้ไข LOGIC ตัวนับจำนวน ---
+                // ลบ Badge เดิมออกก่อนเสมอ เพื่อป้องกันการไม่อัปเดต
+                const oldBadge = box.querySelector('.count-badge');
+                if (oldBadge) {
+                    oldBadge.remove();
+                }
+
+                // สร้าง Badge ใหม่เสมอตามจำนวนปัจจุบัน
+                const badge = document.createElement('div');
+                badge.className = 'count-badge';
+                badge.innerText = count; // ใส่ตัวเลขจำนวนรูปล่าสุด
+                box.appendChild(badge);
 
                 // ปุ่มลบ (Clear All)
                 if(!box.querySelector('.remove-btn')) {
                     const btn = document.createElement('div');
-                    btn.className = 'remove-btn absolute top-[-8px] left-[-8px] bg-red-500 text-white w-6 h-6 rounded-full flex items-center justify-center text-xs shadow cursor-pointer z-20 border-2 border-white';
+                    btn.className = 'remove-btn absolute top-[-10px] left-[-10px] bg-red-500 text-white w-7 h-7 rounded-full flex items-center justify-center text-sm shadow cursor-pointer z-30 border-2 border-white hover:bg-red-600';
                     btn.innerHTML = '<i class="fa-solid fa-trash"></i>';
                     btn.onclick = (e) => {
                         e.preventDefault();
                         e.stopPropagation();
-                        if(confirm('ล้างรูปภาพทั้งหมดในช่องนี้?')) {
+                        if(confirm(`ลบรูปภาพทั้งหมด ${count} รูปในช่องนี้?`)) {
                             fileStorage[boxId] = []; // Clear array
                             // Reset UI
                             box.style.backgroundImage = '';
                             box.classList.remove('border-blue-500', 'ring-2', 'ring-blue-100');
-                            iconContainer.style.display = '';
-                            labelText.style.display = '';
-                            statusText.innerText = 'แตะเพื่อถ่าย';
-                            statusText.className = 'text-[10px] text-gray-400 mt-1 status-text';
-                            if(badge) badge.remove();
+                            if(iconContainer) iconContainer.style.opacity = '1';
+                            if(labelText) labelText.style.opacity = '1';
+                            
+                            if(statusText) {
+                                statusText.innerText = 'แตะเพื่อถ่าย';
+                                statusText.className = 'absolute bottom-1 right-2 hidden status-text text-[10px] text-gray-400';
+                                statusText.style.display = 'none';
+                            }
+
+                            // ลบ Badge ที่สร้างไว้
+                            const currentBadge = box.querySelector('.count-badge');
+                            if(currentBadge) currentBadge.remove();
+                            
                             btn.remove();
                         }
                     };
@@ -394,6 +462,10 @@
             const mpVoted = document.querySelector('[name="mp_voted"]').value;
             const refVoted = document.querySelector('[name="ref_voted"]').value;
             if(!mpVoted && !refVoted) { alert('กรุณากรอกคะแนนอย่างน้อย 1 ประเภท'); return; }
+
+            // เช็คว่ามีรูปหรือไม่ (Optional)
+            // const totalFiles = Object.values(fileStorage).reduce((acc, curr) => acc + curr.length, 0);
+            // if(totalFiles === 0 && !confirm("คุณยังไม่ได้แนบรูปภาพ ยืนยันที่จะส่ง?")) return;
 
             if(!confirm("ยืนยันการส่งข้อมูล?")) return;
 
