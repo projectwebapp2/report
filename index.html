@@ -1,0 +1,423 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ระบบรายงานผลคะแนน (Speed)</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <!-- ไอคอน -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script>
+        tailwind.config = { theme: { fontFamily: { sans: ['Prompt', 'sans-serif'] } } }
+    </script>
+    <style>
+        /* ซ่อน Spin Button ของ Input Number */
+        input::-webkit-outer-spin-button,
+        input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+        input[type=number] { -moz-appearance: textfield; }
+        
+        .upload-active { border-color: #2563eb; background-color: #eff6ff; }
+        .upload-success { border-color: #16a34a; background-color: #f0fdf4; }
+    </style>
+</head>
+<body class="bg-gray-100 font-sans pb-40 text-slate-800">
+
+    <!-- Navbar -->
+    <nav class="bg-blue-700 text-white p-4 sticky top-0 z-30 shadow-md flex justify-between items-center">
+        <div>
+            <h1 class="text-xl font-bold"><i class="fa-solid fa-save"></i> ส่งผลคะแนน</h1>
+            <p class="text-xs text-blue-200">ข้อมูลเลือกตั้ง ส.ส. และ ออกเสียงประชามติ</p>
+        </div>
+        <button onclick="clearDraft()" class="text-xs bg-blue-800 px-3 py-1 rounded text-blue-200 hover:text-white">
+            ล้างค่าเดิม
+        </button>
+    </nav>
+
+    <form id="voteForm" class="p-4 max-w-lg mx-auto space-y-6" onsubmit="submitForm(event)">
+        
+        <!-- 1. หน่วยเลือกตั้ง -->
+        <div class="bg-white p-5 rounded-xl shadow-sm border border-gray-200">
+            <h2 class="text-lg font-bold text-gray-700 mb-4 flex items-center gap-2"><i class="fa-solid fa-map-location-dot"></i> หน่วยเลือกตั้ง</h2>
+            <div class="grid grid-cols-2 gap-4">
+                <div class="col-span-2">
+                    <label class="block text-sm font-semibold text-gray-600 mb-1">แขวง</label>
+                    <select id="district" class="w-full p-3 text-lg rounded-lg border bg-gray-50 focus:ring-2 focus:ring-blue-500" onchange="updateUnits(); saveDraft();" required>
+                        <option value="">เลือกแขวง...</option>
+                        <option value="บางคอแหลม">บางคอแหลม</option>
+                        <option value="วัดพระยาไกร">วัดพระยาไกร</option>
+                        <option value="บางโคล่">บางโคล่</option>
+                    </select>
+                </div>
+                <div class="col-span-2">
+                    <label class="block text-sm font-semibold text-gray-600 mb-1">หน่วยที่</label>
+                    <select id="unitNo" class="w-full p-3 text-lg rounded-lg border bg-gray-50 focus:ring-2 focus:ring-blue-500" disabled required onchange="saveDraft()">
+                        <option value="">เลือกแขวงก่อน</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <!-- 2. คะแนน ส.ส. -->
+        <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+            <div class="bg-blue-600 text-white p-3 font-bold flex justify-between items-center">
+                <span><i class="fa-solid fa-user-tie"></i> ส่วนที่ 1: เลือกตั้ง ส.ส.</span>
+                <span class="text-xs bg-blue-500 px-2 py-1 rounded">สำคัญ</span>
+            </div>
+            <div class="p-5 space-y-4">
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="text-gray-500 font-bold">ผู้มีสิทธิ</label>
+                        <input type="number" name="mp_eligible" inputmode="numeric" class="w-full p-2 border rounded-lg text-center text-xl font-bold bg-gray-50" placeholder="0" oninput="saveDraft()">
+                    </div>
+                    <div>
+                        <label class="text-blue-600 font-bold">ผู้มาใช้สิทธิ</label>
+                        <input type="number" name="mp_voted" inputmode="numeric" class="w-full p-2 border-2 border-blue-200 rounded-lg text-center text-xl font-bold text-blue-700 bg-blue-50 focus:bg-white" placeholder="0" required oninput="saveDraft()">
+                    </div>
+                </div>
+                
+                <div class="bg-gray-50 p-4 rounded-lg border space-y-4">
+                    <!-- ปรับ Layout บัตรดี -->
+                    <div class="flex items-center justify-between">
+                        <label class="text-base font-bold text-green-700 whitespace-nowrap">บัตรดี</label>
+                        <input type="number" name="mp_good" inputmode="numeric" class="w-40 p-2 border border-green-200 rounded-lg text-lg font-bold text-green-700 text-center bg-white shadow-sm" placeholder="0" oninput="saveDraft()">
+                    </div>
+                    <!-- ปรับ Layout บัตรเสีย -->
+                    <div class="flex items-center justify-between">
+                        <label class="text-base font-bold text-red-600 whitespace-nowrap">บัตรเสีย</label>
+                        <input type="number" name="mp_bad" inputmode="numeric" class="w-40 p-2 border border-red-200 rounded-lg text-lg font-bold text-red-600 text-center bg-white shadow-sm" placeholder="0" oninput="saveDraft()">
+                    </div>
+                    <!-- ปรับ Layout ไม่เลือกใคร -->
+                    <div class="flex items-center justify-between">
+                        <label class="text-base font-bold text-gray-600 whitespace-nowrap">ไม่เลือกใคร</label>
+                        <input type="number" name="mp_novote" inputmode="numeric" class="w-40 p-2 border border-gray-300 rounded-lg text-lg font-bold text-gray-700 text-center bg-white shadow-sm" placeholder="0" oninput="saveDraft()">
+                    </div>
+                </div>
+
+                <!-- Image Uploads MP -->
+                <div class="space-y-2 pt-2">
+                    <p class="font-bold text-gray-500 mb-2">📸 ถ่ายภาพหลักฐาน (ส.ส.)</p>
+                    <div class="grid grid-cols-2 gap-2">
+                        <!-- Custom File Button -->
+                        <label class="border-2 border-dashed border-gray-300 rounded-lg p-3 flex flex-col items-center justify-center cursor-pointer hover:bg-gray-50 transition-all text-center h-24 relative overflow-hidden" id="box_mp_1">
+                            <i class="fa-solid fa-camera text-blue-500 text-xl mb-1"></i>
+                            <span class="font-bold text-gray-600 leading-tight">แบบแบ่งเขต<br>(5/18)</span>
+                            <span class="text-[10px] text-gray-400 mt-1 status-text">แตะเพื่อถ่าย</span>
+                            <input type="file" id="file_mp_1" accept="image/*" capture="environment" class="hidden" onchange="handleFileSelect(this, 'box_mp_1')">
+                        </label>
+
+                        <label class="border-2 border-dashed border-gray-300 rounded-lg p-3 flex flex-col items-center justify-center cursor-pointer hover:bg-gray-50 transition-all text-center h-24 relative overflow-hidden" id="box_mp_2">
+                            <i class="fa-solid fa-list-check text-blue-500 text-xl mb-1"></i>
+                            <span class="font-bold text-gray-600 leading-tight">ขีดคะแนน แบ่งเขต<br>(5/11)</span>
+                            <span class="text-[10px] text-gray-400 mt-1 status-text">แตะเพื่อถ่าย</span>
+                            <input type="file" id="file_mp_2" accept="image/*" capture="environment" class="hidden" onchange="handleFileSelect(this, 'box_mp_2')">
+                        </label>
+
+                        <label class="border-2 border-dashed border-gray-300 rounded-lg p-3 flex flex-col items-center justify-center cursor-pointer hover:bg-gray-50 transition-all text-center h-24 relative overflow-hidden" id="box_mp_3">
+                            <i class="fa-solid fa-users-rectangle text-indigo-500 text-xl mb-1"></i>
+                            <span class="font-bold text-gray-600 leading-tight">บัญชีรายชื่อ<br>(5/18 บช)</span>
+                            <span class="text-[10px] text-gray-400 mt-1 status-text">แตะเพื่อถ่าย</span>
+                            <input type="file" id="file_mp_3" accept="image/*" capture="environment" class="hidden" onchange="handleFileSelect(this, 'box_mp_3')">
+                        </label>
+
+                        <label class="border-2 border-dashed border-gray-300 rounded-lg p-3 flex flex-col items-center justify-center cursor-pointer hover:bg-gray-50 transition-all text-center h-24 relative overflow-hidden" id="box_mp_4">
+                            <i class="fa-solid fa-list-check text-blue-500 text-xl mb-1"></i>
+                            <span class="font-bold text-gray-600 leading-tight">ขีดคะแนน บช<br>(5/11 บช)</span>
+                            <span class="text-[10px] text-gray-400 mt-1 status-text">แตะเพื่อถ่าย</span>
+                            <input type="file" id="file_mp_4" accept="image/*" capture="environment" class="hidden" onchange="handleFileSelect(this, 'box_mp_4')">
+                        </label>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 3. คะแนน ประชามติ -->
+        <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+            <div class="bg-orange-500 text-white p-3 font-bold flex justify-between items-center">
+                <span><i class="fa-solid fa-bullhorn"></i> ส่วนที่ 2: ออกเสียงประชามติ</span>
+                <span class="text-xs bg-orange-600 px-2 py-1 rounded">สำคัญ</span>				
+            </div>
+            <div class="p-5 space-y-4">
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="text-gray-500 font-bold">ผู้มีสิทธิ</label>
+                        <input type="number" name="ref_eligible" inputmode="numeric" class="w-full p-2 border rounded-lg text-center text-xl font-bold bg-gray-50" placeholder="0" oninput="saveDraft()">
+                    </div>
+                    <div>
+                        <label class="text-orange-600 font-bold">ผู้มาใช้สิทธิ</label>
+                        <input type="number" name="ref_voted" inputmode="numeric" class="w-full p-2 border-2 border-orange-200 rounded-lg text-center text-xl font-bold text-orange-700 bg-orange-50 focus:bg-white" placeholder="0" required oninput="saveDraft()">
+                    </div>
+                </div>
+                
+                <div class="bg-gray-50 p-4 rounded-lg border space-y-4">
+                    <!-- ปรับ Layout บัตรดี (ประชามติ) -->
+                    <div class="flex items-center justify-between">
+                        <label class="text-base font-bold text-green-700 whitespace-nowrap">บัตรดี</label>
+                        <input type="number" name="ref_good" inputmode="numeric" class="w-40 p-2 border border-green-200 rounded-lg text-lg font-bold text-green-700 text-center bg-white shadow-sm" placeholder="0" oninput="saveDraft()">
+                    </div>
+                    <!-- ปรับ Layout บัตรเสีย (ประชามติ) -->
+                    <div class="flex items-center justify-between">
+                        <label class="text-base font-bold text-red-600 whitespace-nowrap">บัตรเสีย</label>
+                        <input type="number" name="ref_bad" inputmode="numeric" class="w-40 p-2 border border-red-200 rounded-lg text-lg font-bold text-red-600 text-center bg-white shadow-sm" placeholder="0" oninput="saveDraft()">
+                    </div>
+                </div>
+
+                <!-- Image Uploads Ref -->
+                <div class="space-y-2 pt-2">
+                    <p class="font-bold text-gray-500 mb-2">📸 ถ่ายภาพหลักฐาน (ประชามติ)</p>
+                    <div class="grid grid-cols-2 gap-2">
+                        <label class="border-2 border-dashed border-gray-300 rounded-lg p-3 flex flex-col items-center justify-center cursor-pointer hover:bg-gray-50 transition-all text-center h-24 relative overflow-hidden" id="box_ref_1">
+                            <i class="fa-solid fa-file-contract text-orange-500 text-xl mb-1"></i>
+                            <span class="font-bold text-gray-600 leading-tight">รายงาน อ.ส. 4/7</span>
+                            <span class="text-[10px] text-gray-400 mt-1 status-text">แตะเพื่อถ่าย</span>
+                            <input type="file" id="file_ref_1" accept="image/*" capture="environment" class="hidden" onchange="handleFileSelect(this, 'box_ref_1')">
+                        </label>
+
+                        <label class="border-2 border-dashed border-gray-300 rounded-lg p-3 flex flex-col items-center justify-center cursor-pointer hover:bg-gray-50 transition-all text-center h-24 relative overflow-hidden" id="box_ref_2">
+                            <i class="fa-solid fa-list-check text-orange-500 text-xl mb-1"></i>
+                            <span class="font-bold text-gray-600 leading-tight">ขีดคะแนน อ.ส. 4/5</span>
+                            <span class="text-[10px] text-gray-400 mt-1 status-text">แตะเพื่อถ่าย</span>
+                            <input type="file" id="file_ref_2" accept="image/*" capture="environment" class="hidden" onchange="handleFileSelect(this, 'box_ref_2')">
+                        </label>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Submit Button -->
+        <div class="fixed bottom-0 left-0 right-0 p-4 bg-white border-t border-gray-200 shadow-lg z-20">
+            <button type="submit" id="submitBtn" class="w-full py-4 rounded-xl font-bold text-xl text-white bg-blue-600 hover:bg-blue-700 active:scale-95 transition-all shadow-md flex justify-center items-center gap-2">
+                <span>💾 ส่งข้อมูล</span>
+            </button>
+        </div>
+    </form>
+    
+    <!-- Loading Overlay -->
+    <div id="loadingOverlay" class="fixed inset-0 bg-black/80 z-50 flex flex-col items-center justify-center hidden backdrop-blur-sm">
+        <div class="bg-white p-6 rounded-2xl flex flex-col items-center max-w-xs w-full animate-bounce-in">
+            <div class="w-12 h-12 border-4 border-blue-600 border-t-transparent rounded-full animate-spin mb-4"></div>
+            <p class="text-gray-800 font-bold text-lg">กำลังส่งข้อมูล...</p>
+            <p class="text-xs text-gray-500 mt-2 text-center">ระบบกำลังบีบอัดรูปภาพและส่งขึ้น Cloud<br>กรุณาอย่าปิดหน้าต่าง</p>
+        </div>
+    </div>
+
+    <script>
+        const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxGuPCyQCgkfLYimrY3IkuFd5S_lC3EZNgm4sLEQ2K5MTlh30BAkHsRBmkaUW8oLNOl/exec'; // ใส่ URL เดิมของคุณ
+
+        // --- Logic: หน่วยเลือกตั้ง & Draft ---
+        function updateUnits() {
+            const district = document.getElementById('district').value;
+            const unitSelect = document.getElementById('unitNo');
+            const savedUnit = localStorage.getItem('draft_unitNo'); // คืนค่าหน่วยเดิมถ้ามี
+
+            unitSelect.innerHTML = '<option value="">เลือกหน่วย...</option>';
+            let max = 0;
+            if(district === 'บางคอแหลม') max = 27; 
+            else if(district === 'วัดพระยาไกร') max = 31; 
+            else if(district === 'บางโคล่') max = 48;
+
+            if (max > 0) {
+                unitSelect.disabled = false;
+                for(let i=1; i<=max; i++) {
+                    const opt = document.createElement('option'); 
+                    opt.value = i; 
+                    opt.text = i; 
+                    if(savedUnit == i) opt.selected = true; // คืนค่าที่เลือกไว้
+                    unitSelect.appendChild(opt);
+                }
+            } else { unitSelect.disabled = true; }
+        }
+
+        // --- Logic: บีบอัดรูปภาพ (หัวใจความเร็ว) ---
+        async function handleFileSelect(input, boxId) {
+            const box = document.getElementById(boxId);
+            const statusText = box.querySelector('.status-text');
+            
+            if (input.files && input.files[0]) {
+                const file = input.files[0];
+                statusText.innerText = "กำลังย่อรูป...";
+                
+                try {
+                    // แสดง Preview ทันที
+                    const reader = new FileReader();
+                    reader.onload = (e) => {
+                        box.style.backgroundImage = `url('${e.target.result}')`;
+                        box.style.backgroundSize = 'cover';
+                        box.style.backgroundPosition = 'center';
+                        box.classList.add('border-blue-500', 'ring-2', 'ring-blue-100');
+                        // ซ่อน icon เดิมเพื่อให้เห็นรูปชัด
+                        box.querySelector('i').style.display = 'none';
+                        box.querySelector('span').style.display = 'none'; // ซ่อนข้อความหลัก
+                        statusText.style.display = 'none';
+                        
+                        // สร้างปุ่มยกเลิกเล็กๆ
+                        if(!box.querySelector('.remove-btn')) {
+                            const btn = document.createElement('div');
+                            btn.className = 'remove-btn absolute top-1 right-1 bg-red-500 text-white w-5 h-5 rounded-full flex items-center justify-center text-xs shadow cursor-pointer z-10';
+                            btn.innerHTML = '×';
+                            btn.onclick = (e) => {
+                                e.preventDefault();
+                                e.stopPropagation();
+                                input.value = '';
+                                box.style.backgroundImage = '';
+                                box.classList.remove('border-blue-500', 'ring-2', 'ring-blue-100');
+                                box.querySelector('i').style.display = '';
+                                box.querySelector('span').style.display = '';
+                                statusText.style.display = '';
+                                statusText.innerText = 'แตะเพื่อถ่าย';
+                                btn.remove();
+                            };
+                            box.appendChild(btn);
+                        }
+                    };
+                    reader.readAsDataURL(file);
+                } catch (e) {
+                    console.error(e);
+                    statusText.innerText = "Error!";
+                }
+            }
+        }
+
+        // ฟังก์ชันย่อรูปด้วย Canvas (ทำงานเบื้องหลังตอนกดส่ง)
+        const compressImage = (file) => new Promise((resolve) => {
+            const reader = new FileReader();
+            reader.readAsDataURL(file);
+            reader.onload = (event) => {
+                const img = new Image();
+                img.src = event.target.result;
+                img.onload = () => {
+                    const canvas = document.createElement('canvas');
+                    const ctx = canvas.getContext('2d');
+                    
+                    // กำหนดขนาดสูงสุด (เช่น กว้างไม่เกิน 1000px)
+                    const MAX_WIDTH = 1000;
+                    const scaleSize = MAX_WIDTH / img.width;
+                    canvas.width = MAX_WIDTH;
+                    canvas.height = img.height * scaleSize;
+
+                    ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+                    
+                    // บีบอัด JPEG คุณภาพ 0.7 (ลดขนาดไฟล์ได้ 80-90%)
+                    const dataUrl = canvas.toDataURL('image/jpeg', 0.7);
+                    resolve(dataUrl.split(',')[1]); // คืนค่าเฉพาะ Base64
+                };
+            };
+        });
+
+        // --- Logic: Auto Save Draft ---
+        function saveDraft() {
+            const inputs = document.querySelectorAll('input[type="number"], select');
+            inputs.forEach(input => {
+                if(input.id) localStorage.setItem('draft_' + input.id, input.value);
+                if(input.name) localStorage.setItem('draft_' + input.name, input.value);
+            });
+        }
+
+        function restoreDraft() {
+            const district = localStorage.getItem('draft_district');
+            if(district) {
+                document.getElementById('district').value = district;
+                updateUnits(); // สร้าง options หน่วยเลือกตั้ง
+                // ค่า unitNo จะถูก set ใน updateUnits ผ่าน localStorage draft_unitNo
+            }
+            
+            const inputs = document.querySelectorAll('input[type="number"]');
+            inputs.forEach(input => {
+                const val = localStorage.getItem('draft_' + input.name);
+                if(val) input.value = val;
+            });
+        }
+
+        function clearDraft() {
+            if(confirm('ต้องการล้างข้อมูลที่กรอกค้างไว้ทั้งหมดหรือไม่?')) {
+                localStorage.clear();
+                window.location.reload();
+            }
+        }
+
+        // โหลดข้อมูลเดิมเมื่อเปิดหน้าเว็บ
+        window.onload = restoreDraft;
+
+        // --- Logic: Submit Form ---
+        async function submitForm(e) {
+            e.preventDefault();
+            const district = document.getElementById('district').value;
+            const unit = document.getElementById('unitNo').value;
+            if(!district || !unit) { alert('กรุณาเลือกแขวงและหน่วยเลือกตั้ง'); return; }
+
+            const mpVoted = document.querySelector('[name="mp_voted"]').value;
+            const refVoted = document.querySelector('[name="ref_voted"]').value;
+            if(!mpVoted && !refVoted) { alert('กรุณากรอกคะแนนผู้มาใช้สิทธิอย่างน้อย 1 ประเภท'); return; }
+
+            if(!confirm("ยืนยันการส่งข้อมูล?")) return;
+
+            document.getElementById('loadingOverlay').classList.remove('hidden');
+            const btn = document.getElementById('submitBtn');
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> กำลังประมวลผล...';
+
+            try {
+                const formData = {
+                    district: district, unitNo: unit,
+                    mp: {
+                        eligible: document.querySelector('[name="mp_eligible"]').value,
+                        voted: mpVoted,
+                        good: document.querySelector('[name="mp_good"]').value,
+                        bad: document.querySelector('[name="mp_bad"]').value,
+                        noVote: document.querySelector('[name="mp_novote"]').value
+                    },
+                    ref: {
+                        eligible: document.querySelector('[name="ref_eligible"]').value,
+                        voted: refVoted,
+                        good: document.querySelector('[name="ref_good"]').value,
+                        bad: document.querySelector('[name="ref_bad"]').value
+                    },
+                    files: []
+                };
+
+                // ประมวลผลไฟล์พร้อมกัน (Parallel) เพื่อความไว
+                const fileInputs = [
+                    {id: 'file_mp_1', prefix: 'MP_ZONE'},
+                    {id: 'file_mp_2', prefix: 'MP_ZONE_SCORE'},
+                    {id: 'file_mp_3', prefix: 'MP_LIST'},
+                    {id: 'file_mp_4', prefix: 'MP_LIST_SCORE'},
+                    {id: 'file_ref_1', prefix: 'REF_DOC'},
+                    {id: 'file_ref_2', prefix: 'REF_SCORE'}
+                ];
+
+                const uploadPromises = fileInputs.map(async (item) => {
+                    const input = document.getElementById(item.id);
+                    if(input.files.length > 0) {
+                        // เรียกใช้ฟังก์ชันย่อรูป แทนการอ่านไฟล์ดิบๆ
+                        const compressedBase64 = await compressImage(input.files[0]);
+                        return {
+                            name: item.prefix + "_" + input.files[0].name,
+                            type: 'image/jpeg', // บังคับเป็น jpeg เพราะเราบีบอัดมาแล้ว
+                            data: compressedBase64
+                        };
+                    }
+                    return null;
+                });
+
+                // รอให้ย่อรูปเสร็จทุกรูป
+                const processedFiles = await Promise.all(uploadPromises);
+                formData.files = processedFiles.filter(f => f !== null);
+
+                // ส่งข้อมูล
+                await fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify(formData) });
+                
+                localStorage.clear(); // ส่งสำเร็จแล้วล้าง Draft
+                alert('✅ ส่งข้อมูลสำเร็จ! ขอบคุณที่ปฏิบัติหน้าที่ครับ');
+                window.location.reload();
+
+            } catch (error) {
+                console.error(error); 
+                alert('เกิดข้อผิดพลาด: ' + error.message + '\nกรุณาลองใหม่อีกครั้ง');
+                document.getElementById('loadingOverlay').classList.add('hidden');
+                btn.disabled = false;
+                btn.innerHTML = '🚀 ส่งข้อมูลทั้งหมด';
+            }
+        }
+    </script>
+</body>
+</html>
