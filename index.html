@@ -287,7 +287,7 @@
             } else { unitSelect.disabled = true; }
         }
 
-        // --- Logic: Multi-Shot Image Handling ---
+        // --- Logic: Multi-Shot Image Handling (FIXED for Freeze Issue) ---
         async function handleFileSelect(input, boxId) {
             const box = document.getElementById(boxId);
             const statusText = box.querySelector('.status-text');
@@ -299,6 +299,7 @@
                 if(statusText) {
                    statusText.style.display = 'block';
                    statusText.innerText = "กำลังย่อ...";
+                   statusText.className = 'text-xs font-bold text-blue-500 absolute bottom-1 right-2 bg-white px-2 rounded border border-blue-200';
                 }
                 
                 try {
@@ -318,13 +319,19 @@
 
                     // อัปเดต UI (โชว์รูป + นับจำนวน)
                     updateBoxUI(boxId, compressedBase64);
-                    
-                    // *** สำคัญ: Reset Input เพื่อให้เลือกรูปเดิมซ้ำได้ หรือเลือกรูปใหม่ได้ ***
-                    input.value = '';
 
                 } catch (e) {
-                    console.error(e);
-                    if(statusText) statusText.innerText = "Error!";
+                    console.error("Image processing error:", e);
+                    // ถ้า Error ให้แจ้งเตือนและ Reset สถานะ
+                    if(statusText) {
+                        statusText.innerText = "❌ รูปมีปัญหา";
+                        statusText.className = 'text-xs font-bold text-red-500 absolute bottom-1 right-2 bg-white px-2 rounded border border-red-200';
+                    }
+                    alert("เกิดข้อผิดพลาดในการประมวลผลรูปภาพ กรุณาลองใหม่ หรือถ่ายรูปความละเอียดลดลง");
+                } finally {
+                    // *** สำคัญ: Reset Input เสมอ เพื่อให้เลือกรูปเดิมซ้ำได้ หรือเลือกรูปใหม่ได้ ***
+                    // ย้ายมาไว้ใน Finally เพื่อให้ทำงานตลอด ไม่ว่าสำเร็จหรือล้มเหลว
+                    input.value = '';
                 }
             }
         }
@@ -354,17 +361,16 @@
                     statusText.style.display = 'block';
                 }
 
-                // --- แก้ไข LOGIC ตัวนับจำนวน ---
-                // ลบ Badge เดิมออกก่อนเสมอ เพื่อป้องกันการไม่อัปเดต
+                // ลบ Badge เดิมออกก่อนเสมอ
                 const oldBadge = box.querySelector('.count-badge');
                 if (oldBadge) {
                     oldBadge.remove();
                 }
 
-                // สร้าง Badge ใหม่เสมอตามจำนวนปัจจุบัน
+                // สร้าง Badge ใหม่เสมอ
                 const badge = document.createElement('div');
                 badge.className = 'count-badge';
-                badge.innerText = count; // ใส่ตัวเลขจำนวนรูปล่าสุด
+                badge.innerText = count;
                 box.appendChild(badge);
 
                 // ปุ่มลบ (Clear All)
@@ -389,7 +395,6 @@
                                 statusText.style.display = 'none';
                             }
 
-                            // ลบ Badge ที่สร้างไว้
                             const currentBadge = box.querySelector('.count-badge');
                             if(currentBadge) currentBadge.remove();
                             
@@ -401,23 +406,49 @@
             }
         }
 
-        const compressImage = (file) => new Promise((resolve) => {
+        const compressImage = (file) => new Promise((resolve, reject) => {
             const reader = new FileReader();
             reader.readAsDataURL(file);
+            
             reader.onload = (event) => {
                 const img = new Image();
                 img.src = event.target.result;
+                
                 img.onload = () => {
-                    const canvas = document.createElement('canvas');
-                    const ctx = canvas.getContext('2d');
-                    const MAX_WIDTH = 1000; 
-                    const scaleSize = MAX_WIDTH / img.width;
-                    canvas.width = MAX_WIDTH;
-                    canvas.height = img.height * scaleSize;
-                    ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-                    const dataUrl = canvas.toDataURL('image/jpeg', 0.7);
-                    resolve(dataUrl.split(',')[1]);
+                    try {
+                        const canvas = document.createElement('canvas');
+                        const ctx = canvas.getContext('2d');
+                        const MAX_WIDTH = 1000; // คงไว้ที่ 1000px เพื่อความคมชัดพอประมาณ
+                        
+                        let width = img.width;
+                        let height = img.height;
+
+                        if (width > MAX_WIDTH) {
+                            height *= MAX_WIDTH / width;
+                            width = MAX_WIDTH;
+                        }
+
+                        canvas.width = width;
+                        canvas.height = height;
+                        ctx.drawImage(img, 0, 0, width, height);
+                        
+                        // ใช้ JPEG quality 0.7
+                        const dataUrl = canvas.toDataURL('image/jpeg', 0.7);
+                        resolve(dataUrl.split(',')[1]);
+                    } catch (err) {
+                        reject(err);
+                    }
                 };
+                
+                // เพิ่ม Error Handler สำหรับการโหลดรูป
+                img.onerror = (err) => {
+                    reject(new Error("Failed to load image"));
+                };
+            };
+
+            // เพิ่ม Error Handler สำหรับการอ่านไฟล์
+            reader.onerror = (err) => {
+                reject(new Error("Failed to read file"));
             };
         });
 
@@ -462,10 +493,6 @@
             const mpVoted = document.querySelector('[name="mp_voted"]').value;
             const refVoted = document.querySelector('[name="ref_voted"]').value;
             if(!mpVoted && !refVoted) { alert('กรุณากรอกคะแนนอย่างน้อย 1 ประเภท'); return; }
-
-            // เช็คว่ามีรูปหรือไม่ (Optional)
-            // const totalFiles = Object.values(fileStorage).reduce((acc, curr) => acc + curr.length, 0);
-            // if(totalFiles === 0 && !confirm("คุณยังไม่ได้แนบรูปภาพ ยืนยันที่จะส่ง?")) return;
 
             if(!confirm("ยืนยันการส่งข้อมูล?")) return;
 
