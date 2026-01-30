@@ -118,7 +118,6 @@
                 <div class="space-y-2 pt-2">
                     <p class="font-bold text-gray-500 mb-2">📸 ถ่ายภาพหลักฐาน (ส.ส.) <span class="text-xs font-normal text-green-500">*แตะซ้ำเพื่อเพิ่มรูปได้</span></p>
                     
-                    <!-- ปรับ Grid เป็น cols-1 เพื่อให้เต็มจอ -->
                     <div class="grid grid-cols-1 gap-4">
                         <!-- Custom File Button 1 -->
                         <label class="border-2 border-dashed border-gray-300 rounded-lg p-4 flex items-center justify-center cursor-pointer hover:bg-gray-50 transition-all text-center h-24 relative overflow-visible gap-4" id="box_mp_1">
@@ -210,7 +209,6 @@
                 <div class="space-y-2 pt-2">
                     <p class="font-bold text-gray-500 mb-2">📸 ถ่ายภาพหลักฐาน (ประชามติ) <span class="text-xs font-normal text-green-500">*แตะซ้ำเพื่อเพิ่มรูปได้</span></p>
                     
-                    <!-- ปรับ Grid เป็น cols-1 เพื่อให้เต็มจอ -->
                     <div class="grid grid-cols-1 gap-4">
                         <label class="border-2 border-dashed border-gray-300 rounded-lg p-4 flex items-center justify-center cursor-pointer hover:bg-gray-50 transition-all text-center h-24 relative overflow-visible gap-4" id="box_ref_1">
                             <div class="icon-container flex flex-col items-center">
@@ -253,14 +251,14 @@
         <div class="bg-white p-6 rounded-2xl flex flex-col items-center max-w-xs w-full animate-bounce-in">
             <div class="w-12 h-12 border-4 border-blue-600 border-t-transparent rounded-full animate-spin mb-4"></div>
             <p class="text-gray-800 font-bold text-lg">กำลังส่งข้อมูล...</p>
-            <p class="text-xs text-gray-500 mt-2 text-center">ระบบกำลังบีบอัดและส่งรูปภาพ<br>กรุณาอย่าปิดหน้าต่าง</p>
+            <p id="loadingStatus" class="text-xs text-gray-500 mt-2 text-center">ระบบกำลังบีบอัดและส่งรูปภาพ<br>กรุณาอย่าปิดหน้าต่าง</p>
         </div>
     </div>
 
     <script>
         const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxGuPCyQCgkfLYimrY3IkuFd5S_lC3EZNgm4sLEQ2K5MTlh30BAkHsRBmkaUW8oLNOl/exec'; 
 
-        // Storage สำหรับเก็บรูปภาพแยกตามกล่อง (Box ID -> Array of Base64)
+        // Storage สำหรับเก็บ File Object (ยังไม่ย่อ)
         let fileStorage = {};
 
         // --- Logic: หน่วยเลือกตั้ง & Draft ---
@@ -287,70 +285,45 @@
             } else { unitSelect.disabled = true; }
         }
 
-        // --- Logic: Multi-Shot Image Handling (FIXED for Freeze Issue) ---
-        async function handleFileSelect(input, boxId) {
+        // --- Logic: Image Handling (NEW: Fast Preview, No Compress Yet) ---
+        function handleFileSelect(input, boxId) {
             const box = document.getElementById(boxId);
-            const statusText = box.querySelector('.status-text');
             
             if (input.files && input.files[0]) {
                 const file = input.files[0];
-                
-                // Show uploading state
-                if(statusText) {
-                   statusText.style.display = 'block';
-                   statusText.innerText = "กำลังย่อ...";
-                   statusText.className = 'text-xs font-bold text-blue-500 absolute bottom-1 right-2 bg-white px-2 rounded border border-blue-200';
+
+                // ตรวจสอบว่ามี Array สำหรับ Box นี้หรือยัง ถ้าไม่มีให้สร้างใหม่
+                if (!fileStorage[boxId]) {
+                    fileStorage[boxId] = [];
                 }
-                
-                try {
-                    // ย่อรูปก่อนเก็บ
-                    const compressedBase64 = await compressImage(file);
-                    
-                    // ตรวจสอบว่ามี Array สำหรับ Box นี้หรือยัง ถ้าไม่มีให้สร้างใหม่
-                    if (!fileStorage[boxId]) {
-                        fileStorage[boxId] = [];
-                    }
 
-                    // เพิ่มรูปลงใน Array
-                    fileStorage[boxId].push({
-                        name: file.name,
-                        data: compressedBase64
-                    });
+                // เก็บไฟล์ดิบ (Raw File) ลงใน Array ทันที ไม่ต้องรอ
+                fileStorage[boxId].push(file);
 
-                    // อัปเดต UI (โชว์รูป + นับจำนวน)
-                    updateBoxUI(boxId, compressedBase64);
+                // อัปเดต UI ทันทีโดยใช้ Blob URL
+                updateBoxUI(boxId, file);
 
-                } catch (e) {
-                    console.error("Image processing error:", e);
-                    // ถ้า Error ให้แจ้งเตือนและ Reset สถานะ
-                    if(statusText) {
-                        statusText.innerText = "❌ รูปมีปัญหา";
-                        statusText.className = 'text-xs font-bold text-red-500 absolute bottom-1 right-2 bg-white px-2 rounded border border-red-200';
-                    }
-                    alert("เกิดข้อผิดพลาดในการประมวลผลรูปภาพ กรุณาลองใหม่ หรือถ่ายรูปความละเอียดลดลง");
-                } finally {
-                    // *** สำคัญ: Reset Input เสมอ เพื่อให้เลือกรูปเดิมซ้ำได้ หรือเลือกรูปใหม่ได้ ***
-                    // ย้ายมาไว้ใน Finally เพื่อให้ทำงานตลอด ไม่ว่าสำเร็จหรือล้มเหลว
-                    input.value = '';
-                }
+                // Reset input
+                input.value = '';
             }
         }
 
-        function updateBoxUI(boxId, latestImageBase64) {
+        function updateBoxUI(boxId, latestFile) {
             const box = document.getElementById(boxId);
             const count = fileStorage[boxId] ? fileStorage[boxId].length : 0;
-            const statusText = box.querySelector('.status-text');
             const iconContainer = box.querySelector('.icon-container');
             const labelText = box.querySelector('.label-text');
+            const statusText = box.querySelector('.status-text');
 
             if (count > 0) {
-                // แสดงรูปพื้นหลังเป็นรูปล่าสุด
-                box.style.backgroundImage = `url('data:image/jpeg;base64,${latestImageBase64}')`;
+                // สร้าง Preview URL อย่างรวดเร็ว
+                const objectUrl = URL.createObjectURL(latestFile);
+                
+                box.style.backgroundImage = `url('${objectUrl}')`;
                 box.style.backgroundSize = 'cover';
                 box.style.backgroundPosition = 'center';
                 box.classList.add('border-blue-500', 'ring-2', 'ring-blue-100');
                 
-                // ซ่อนไอคอนและข้อความเดิมเพื่อให้เห็นรูปชัด (หรือจะทำให้จางลงก็ได้)
                 if(iconContainer) iconContainer.style.opacity = '0';
                 if(labelText) labelText.style.opacity = '0';
                 
@@ -361,19 +334,14 @@
                     statusText.style.display = 'block';
                 }
 
-                // ลบ Badge เดิมออกก่อนเสมอ
                 const oldBadge = box.querySelector('.count-badge');
-                if (oldBadge) {
-                    oldBadge.remove();
-                }
+                if (oldBadge) oldBadge.remove();
 
-                // สร้าง Badge ใหม่เสมอ
                 const badge = document.createElement('div');
                 badge.className = 'count-badge';
                 badge.innerText = count;
                 box.appendChild(badge);
 
-                // ปุ่มลบ (Clear All)
                 if(!box.querySelector('.remove-btn')) {
                     const btn = document.createElement('div');
                     btn.className = 'remove-btn absolute top-[-10px] left-[-10px] bg-red-500 text-white w-7 h-7 rounded-full flex items-center justify-center text-sm shadow cursor-pointer z-30 border-2 border-white hover:bg-red-600';
@@ -382,8 +350,8 @@
                         e.preventDefault();
                         e.stopPropagation();
                         if(confirm(`ลบรูปภาพทั้งหมด ${count} รูปในช่องนี้?`)) {
-                            fileStorage[boxId] = []; // Clear array
-                            // Reset UI
+                            fileStorage[boxId] = []; 
+                            
                             box.style.backgroundImage = '';
                             box.classList.remove('border-blue-500', 'ring-2', 'ring-blue-100');
                             if(iconContainer) iconContainer.style.opacity = '1';
@@ -406,6 +374,7 @@
             }
         }
 
+        // Function ย่อรูป (จะถูกเรียกใช้ตอนกดส่งข้อมูลทีเดียว)
         const compressImage = (file) => new Promise((resolve, reject) => {
             const reader = new FileReader();
             reader.readAsDataURL(file);
@@ -413,43 +382,29 @@
             reader.onload = (event) => {
                 const img = new Image();
                 img.src = event.target.result;
-                
                 img.onload = () => {
-                    try {
-                        const canvas = document.createElement('canvas');
-                        const ctx = canvas.getContext('2d');
-                        const MAX_WIDTH = 1000; // คงไว้ที่ 1000px เพื่อความคมชัดพอประมาณ
-                        
-                        let width = img.width;
-                        let height = img.height;
+                    const canvas = document.createElement('canvas');
+                    const ctx = canvas.getContext('2d');
+                    const MAX_WIDTH = 1000;
+                    
+                    let width = img.width;
+                    let height = img.height;
 
-                        if (width > MAX_WIDTH) {
-                            height *= MAX_WIDTH / width;
-                            width = MAX_WIDTH;
-                        }
-
-                        canvas.width = width;
-                        canvas.height = height;
-                        ctx.drawImage(img, 0, 0, width, height);
-                        
-                        // ใช้ JPEG quality 0.7
-                        const dataUrl = canvas.toDataURL('image/jpeg', 0.7);
-                        resolve(dataUrl.split(',')[1]);
-                    } catch (err) {
-                        reject(err);
+                    if (width > MAX_WIDTH) {
+                        height *= MAX_WIDTH / width;
+                        width = MAX_WIDTH;
                     }
-                };
-                
-                // เพิ่ม Error Handler สำหรับการโหลดรูป
-                img.onerror = (err) => {
-                    reject(new Error("Failed to load image"));
-                };
-            };
 
-            // เพิ่ม Error Handler สำหรับการอ่านไฟล์
-            reader.onerror = (err) => {
-                reject(new Error("Failed to read file"));
+                    canvas.width = width;
+                    canvas.height = height;
+                    ctx.drawImage(img, 0, 0, width, height);
+                    
+                    const dataUrl = canvas.toDataURL('image/jpeg', 0.7);
+                    resolve(dataUrl.split(',')[1]);
+                };
+                img.onerror = reject;
             };
+            reader.onerror = reject;
         });
 
         // --- Logic: Draft ---
@@ -483,7 +438,7 @@
 
         window.onload = restoreDraft;
 
-        // --- Logic: Submit ---
+        // --- Logic: Submit (Process Images HERE) ---
         async function submitForm(e) {
             e.preventDefault();
             const district = document.getElementById('district').value;
@@ -496,12 +451,16 @@
 
             if(!confirm("ยืนยันการส่งข้อมูล?")) return;
 
-            document.getElementById('loadingOverlay').classList.remove('hidden');
+            // Show Loading
+            const loadingOverlay = document.getElementById('loadingOverlay');
+            const loadingStatus = document.getElementById('loadingStatus');
+            loadingOverlay.classList.remove('hidden');
+            
             const btn = document.getElementById('submitBtn');
             btn.disabled = true;
-            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> กำลังส่งข้อมูล...';
 
             try {
+                // เตรียมข้อมูล Text
                 const formData = {
                     district: district, unitNo: unit,
                     mp: {
@@ -520,7 +479,7 @@
                     files: []
                 };
 
-                // รวมไฟล์ทั้งหมดจาก Storage
+                // เริ่มกระบวนการย่อรูปภาพทั้งหมดที่นี่
                 const fileMapping = [
                     {boxId: 'box_mp_1', prefix: 'MP_ZONE'},
                     {boxId: 'box_mp_2', prefix: 'MP_ZONE_SCORE'},
@@ -530,19 +489,36 @@
                     {boxId: 'box_ref_2', prefix: 'REF_SCORE'}
                 ];
 
-                fileMapping.forEach(item => {
-                    const images = fileStorage[item.boxId];
-                    if (images && images.length > 0) {
-                        images.forEach((img, index) => {
-                            formData.files.push({
-                                name: `${item.prefix}_${index+1}.jpg`, // ตั้งชื่อไฟล์รันเลข
-                                type: 'image/jpeg',
-                                data: img.data
-                            });
-                        });
-                    }
-                });
+                let totalFiles = 0;
+                fileMapping.forEach(m => { if(fileStorage[m.boxId]) totalFiles += fileStorage[m.boxId].length; });
+                
+                let processedCount = 0;
 
+                for (const item of fileMapping) {
+                    const files = fileStorage[item.boxId];
+                    if (files && files.length > 0) {
+                        for (let i = 0; i < files.length; i++) {
+                            const rawFile = files[i];
+                            
+                            // อัปเดตสถานะ Loading
+                            processedCount++;
+                            loadingStatus.innerHTML = `กำลังย่อรูปที่ ${processedCount}/${totalFiles}<br>กรุณาอย่าปิดหน้าต่าง`;
+
+                            // ย่อรูป
+                            const compressedBase64 = await compressImage(rawFile);
+                            
+                            formData.files.push({
+                                name: `${item.prefix}_${i+1}.jpg`,
+                                type: 'image/jpeg',
+                                data: compressedBase64
+                            });
+                        }
+                    }
+                }
+
+                loadingStatus.innerText = "กำลังอัปโหลดขึ้น Server...";
+
+                // ส่งข้อมูล
                 await fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify(formData) });
                 
                 localStorage.clear();
@@ -552,9 +528,8 @@
             } catch (error) {
                 console.error(error); 
                 alert('เกิดข้อผิดพลาด: ' + error.message);
-                document.getElementById('loadingOverlay').classList.add('hidden');
+                loadingOverlay.classList.add('hidden');
                 btn.disabled = false;
-                btn.innerHTML = '🚀 ส่งข้อมูลทั้งหมด';
             }
         }
     </script>
