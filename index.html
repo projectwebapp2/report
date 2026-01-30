@@ -127,10 +127,11 @@
                             <div class="text-left label-text">
                                 <span class="block font-bold text-gray-700">รายงานคะแนน แบ่งเขต</span>
                                 <span class="block font-bold text-gray-700">(ส.ส.5/18)</span>								
-                                <span class="block text-sm text-gray-400">แตะเพื่อถ่ายรูป</span>
+                                <span class="block text-sm text-gray-400">ถ่ายรูป / เลือกรูป</span>
                             </div>
                             <div class="absolute bottom-1 right-2 hidden status-text text-[10px] text-gray-400"></div>
-                            <input type="file" id="file_mp_1" accept="image/*" capture="environment" class="hidden" onchange="handleFileSelect(this, 'box_mp_1')">
+                            <!-- Removed capture="environment" to allow file selection -->
+                            <input type="file" id="file_mp_1" accept="image/*" class="hidden" onchange="handleFileSelect(this, 'box_mp_1')">
                         </label>
 
                         <label class="border-2 border-dashed border-gray-300 rounded-lg p-4 flex items-center justify-center cursor-pointer hover:bg-gray-50 transition-all text-center h-24 relative overflow-visible gap-4" id="box_mp_2">
@@ -140,10 +141,10 @@
                             <div class="text-left label-text">
                                 <span class="block font-bold text-gray-700">แบบขีดคะแนน แบ่งเขต</span>
                                 <span class="block font-bold text-gray-700"> (ส.ส.5/11)</span>                                
-								<span class="block text-sm text-gray-400">แตะเพื่อถ่ายรูป</span>
+								<span class="block text-sm text-gray-400">ถ่ายรูป / เลือกรูป</span>
                             </div>
                             <div class="absolute bottom-1 right-2 hidden status-text text-[10px] text-gray-400"></div>
-                            <input type="file" id="file_mp_2" accept="image/*" capture="environment" class="hidden" onchange="handleFileSelect(this, 'box_mp_2')">
+                            <input type="file" id="file_mp_2" accept="image/*" class="hidden" onchange="handleFileSelect(this, 'box_mp_2')">
                         </label>
 
                         <label class="border-2 border-dashed border-gray-300 rounded-lg p-4 flex items-center justify-center cursor-pointer hover:bg-gray-50 transition-all text-center h-24 relative overflow-visible gap-4" id="box_mp_3">
@@ -153,10 +154,10 @@
                             <div class="text-left label-text">
                                 <span class="block font-bold text-gray-700">รายงานคะแนน บัญชีรายชื่อ</span>
                                 <span class="block font-bold text-gray-700"> (ส.ส.5/18 บช)</span>								
-                                <span class="block text-sm text-gray-400">แตะเพื่อถ่ายรูป</span>
+                                <span class="block text-sm text-gray-400">ถ่ายรูป / เลือกรูป</span>
                             </div>
                             <div class="absolute bottom-1 right-2 hidden status-text text-[10px] text-gray-400"></div>
-                            <input type="file" id="file_mp_3" accept="image/*" capture="environment" class="hidden" onchange="handleFileSelect(this, 'box_mp_3')">
+                            <input type="file" id="file_mp_3" accept="image/*" class="hidden" onchange="handleFileSelect(this, 'box_mp_3')">
                         </label>
 
                         <label class="border-2 border-dashed border-gray-300 rounded-lg p-4 flex items-center justify-center cursor-pointer hover:bg-gray-50 transition-all text-center h-24 relative overflow-visible gap-4" id="box_mp_4">
@@ -166,10 +167,10 @@
                             <div class="text-left label-text">
                                 <span class="block font-bold text-gray-700">แบบขีดคะแนน บัญชีรายชื่อ</span>
                                 <span class="block font-bold text-gray-700">(ส.ส.5/11 บช)</span>								
-                                <span class="block text-sm text-gray-400">แตะเพื่อถ่ายรูป</span>
+                                <span class="block text-sm text-gray-400">ถ่ายรูป / เลือกรูป</span>
                             </div>
                             <div class="absolute bottom-1 right-2 hidden status-text text-[10px] text-gray-400"></div>
-                            <input type="file" id="file_mp_4" accept="image/*" capture="environment" class="hidden" onchange="handleFileSelect(this, 'box_mp_4')">
+                            <input type="file" id="file_mp_4" accept="image/*" class="hidden" onchange="handleFileSelect(this, 'box_mp_4')">
                         </label>
                     </div>
                 </div>
@@ -216,10 +217,10 @@
                             </div>
                             <div class="text-left label-text">
                                 <span class="block font-bold text-gray-700">รายงานคะแนน อ.ส. 4/7</span>
-                                <span class="block text-sm text-gray-400">แตะเพื่อถ่ายรูป</span>
+                                <span class="block text-sm text-gray-400">ถ่ายรูป / เลือกรูป</span>
                             </div>
                             <div class="absolute bottom-1 right-2 hidden status-text text-[10px] text-gray-400"></div>
-                            <input type="file" id="file_ref_1" accept="image/*" capture="environment" class="hidden" onchange="handleFileSelect(this, 'box_ref_1')">
+                            <input type="file" id="file_ref_1" accept="image/*" class="hidden" onchange="handleFileSelect(this, 'box_ref_1')">
                         </label>
 
                         <label class="border-2 border-dashed border-gray-300 rounded-lg p-4 flex items-center justify-center cursor-pointer hover:bg-gray-50 transition-all text-center h-24 relative overflow-visible gap-4" id="box_ref_2">
@@ -228,10 +229,10 @@
                             </div>
                             <div class="text-left label-text">
                                 <span class="block font-bold text-gray-700">แบบขีดคะแนน อ.ส. 4/5</span>
-                                <span class="block text-sm text-gray-400">แตะเพื่อถ่ายรูป</span>
+                                <span class="block text-sm text-gray-400">ถ่ายรูป / เลือกรูป</span>
                             </div>
                             <div class="absolute bottom-1 right-2 hidden status-text text-[10px] text-gray-400"></div>
-                            <input type="file" id="file_ref_2" accept="image/*" capture="environment" class="hidden" onchange="handleFileSelect(this, 'box_ref_2')">
+                            <input type="file" id="file_ref_2" accept="image/*" class="hidden" onchange="handleFileSelect(this, 'box_ref_2')">
                         </label>
                     </div>
                 </div>
@@ -349,7 +350,7 @@
                     btn.onclick = (e) => {
                         e.preventDefault();
                         e.stopPropagation();
-                        if(confirm(`ลบรูปภาพทั้งหมด ${count} รูปในช่องนี้?`)) {
+                        if(confirm(`ลบรูปภาพทั้งหมด ในช่องนี้?`)) {
                             fileStorage[boxId] = []; 
                             
                             box.style.backgroundImage = '';
