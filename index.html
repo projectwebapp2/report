@@ -43,12 +43,12 @@
 
     <form id="voteForm" class="p-4 max-w-lg mx-auto space-y-6" onsubmit="submitForm(event)">
         
-        <!-- 1. หน่วยเลือกตั้ง -->
+        <!-- 1. หน่วยเลือกตั้ง (ยังคง Required ตามเงื่อนไข) -->
         <div class="bg-white p-5 rounded-xl shadow-sm border border-gray-200">
             <h2 class="text-lg font-bold text-blue-700 mb-4 flex items-center gap-2"><i class="fa-solid fa-map-location-dot"></i> หน่วยเลือกตั้ง</h2>
             <div class="grid grid-cols-2 gap-4">
                 <div class="col-span-2">
-                    <label class="block font-semibold text-gray-600 mb-1">แขวง</label>
+                    <label class="block font-semibold text-gray-600 mb-1">แขวง <span class="text-red-500">*</span></label>
                     <select id="district" class="w-full p-3 text-lg rounded-lg border bg-gray-50 focus:ring-2 focus:ring-green-500" onchange="updateUnits(); saveDraft();" required>
                         <option value="">เลือกแขวง...</option>
                         <option value="บางคอแหลม">บางคอแหลม</option>
@@ -57,7 +57,7 @@
                     </select>
                 </div>
                 <div class="col-span-2">
-                    <label class="block font-semibold text-gray-600 mb-1">หน่วยที่</label>
+                    <label class="block font-semibold text-gray-600 mb-1">หน่วยที่ <span class="text-red-500">*</span></label>
                     <select id="unitNo" class="w-full p-3 text-lg rounded-lg border bg-gray-50 focus:ring-2 focus:ring-green-500" disabled required onchange="saveDraft()">
                         <option value="">เลือกแขวงก่อน</option>
                     </select>
@@ -78,7 +78,8 @@
                     </div>
                     <div>
                         <label class="text-green-600 font-bold">ผู้มาใช้สิทธิ</label>
-                        <input type="number" name="mp_zone_voted" inputmode="numeric" class="w-full p-2 border-2 border-green-200 rounded-lg text-center text-xl font-bold text-green-700 bg-green-50 focus:bg-white" placeholder="0" required oninput="saveDraft()">
+                        <!-- เอา required ออกแล้ว -->
+                        <input type="number" name="mp_zone_voted" inputmode="numeric" class="w-full p-2 border-2 border-green-200 rounded-lg text-center text-xl font-bold text-green-700 bg-green-50 focus:bg-white" placeholder="0" oninput="saveDraft()">
                     </div>
                 </div>
                 
@@ -97,7 +98,7 @@
                     </div>
                 </div>
 
-                <!-- Images Zone (Green Theme - Original Layout) -->
+                <!-- Images Zone -->
                 <div class="grid grid-cols-1 gap-4 pt-2">
                     <label class="border-2 border-dashed border-gray-300 rounded-lg p-4 flex items-center justify-center cursor-pointer hover:bg-gray-50 transition-all text-center h-24 relative overflow-visible gap-4" id="box_mp_zone_doc">
                         <div class="icon-container flex flex-col items-center">
@@ -139,7 +140,8 @@
                     </div>
                     <div>
                         <label class="text-pink-600 font-bold">ผู้มาใช้สิทธิ</label>
-                        <input type="number" name="mp_list_voted" inputmode="numeric" class="w-full p-2 border-2 border-pink-200 rounded-lg text-center text-xl font-bold text-pink-700 bg-pink-50 focus:bg-white" placeholder="0" required oninput="saveDraft()">
+                        <!-- เอา required ออกแล้ว -->
+                        <input type="number" name="mp_list_voted" inputmode="numeric" class="w-full p-2 border-2 border-pink-200 rounded-lg text-center text-xl font-bold text-pink-700 bg-pink-50 focus:bg-white" placeholder="0" oninput="saveDraft()">
                     </div>
                 </div>
                 
@@ -158,7 +160,7 @@
                     </div>
                 </div>
 
-                <!-- Images List (Pink Theme - Original Layout) -->
+                <!-- Images List -->
                 <div class="grid grid-cols-1 gap-4 pt-2">
                     <label class="border-2 border-dashed border-gray-300 rounded-lg p-4 flex items-center justify-center cursor-pointer hover:bg-gray-50 transition-all text-center h-24 relative overflow-visible gap-4" id="box_mp_list_doc">
                         <div class="icon-container flex flex-col items-center">
@@ -200,7 +202,8 @@
                     </div>
                     <div>
                         <label class="text-orange-600 font-bold">ผู้มาใช้สิทธิ</label>
-                        <input type="number" name="ref_voted" inputmode="numeric" class="w-full p-2 border-2 border-orange-200 rounded-lg text-center text-xl font-bold text-orange-700 bg-orange-50 focus:bg-white" placeholder="0" required oninput="saveDraft()">
+                        <!-- เอา required ออกแล้ว -->
+                        <input type="number" name="ref_voted" inputmode="numeric" class="w-full p-2 border-2 border-orange-200 rounded-lg text-center text-xl font-bold text-orange-700 bg-orange-50 focus:bg-white" placeholder="0" oninput="saveDraft()">
                     </div>
                 </div>
                 
@@ -215,7 +218,7 @@
                     </div>
                 </div>
 
-                <!-- Images Ref (Orange Theme - Original Layout) -->
+                <!-- Images Ref -->
                 <div class="grid grid-cols-1 gap-4 pt-2">
                     <label class="border-2 border-dashed border-gray-300 rounded-lg p-4 flex items-center justify-center cursor-pointer hover:bg-gray-50 transition-all text-center h-24 relative overflow-visible gap-4" id="box_ref_doc">
                         <div class="icon-container flex flex-col items-center">
@@ -397,13 +400,11 @@
             e.preventDefault();
             const district = document.getElementById('district').value;
             const unit = document.getElementById('unitNo').value;
+            
+            // Check Required: District & Unit ONLY
             if(!district || !unit) { alert('กรุณาเลือกแขวงและหน่วยเลือกตั้ง'); return; }
 
-            // ตรวจสอบอย่างน้อย 1 ประเภท
-            const voted1 = document.querySelector('[name="mp_zone_voted"]').value;
-            const voted2 = document.querySelector('[name="mp_list_voted"]').value;
-            const voted3 = document.querySelector('[name="ref_voted"]').value;
-            if(!voted1 && !voted2 && !voted3) { alert('กรุณากรอกข้อมูลอย่างน้อย 1 ประเภท'); return; }
+            // ส่วนที่เคยเช็คว่าต้องกรอกอย่างน้อย 1 ช่อง ถูกลบออกเพื่อให้เป็นไปตามเงื่อนไขใหม่
 
             if(!confirm("ยืนยันการส่งข้อมูล?")) return;
 
@@ -417,21 +418,21 @@
                     district: district, unitNo: unit,
                     mpZone: {
                         eligible: document.querySelector('[name="mp_zone_eligible"]').value,
-                        voted: voted1,
+                        voted: document.querySelector('[name="mp_zone_voted"]').value,
                         good: document.querySelector('[name="mp_zone_good"]').value,
                         bad: document.querySelector('[name="mp_zone_bad"]').value,
                         noVote: document.querySelector('[name="mp_zone_novote"]').value
                     },
                     mpList: {
                         eligible: document.querySelector('[name="mp_list_eligible"]').value,
-                        voted: voted2,
+                        voted: document.querySelector('[name="mp_list_voted"]').value,
                         good: document.querySelector('[name="mp_list_good"]').value,
                         bad: document.querySelector('[name="mp_list_bad"]').value,
                         noVote: document.querySelector('[name="mp_list_novote"]').value
                     },
                     ref: {
                         eligible: document.querySelector('[name="ref_eligible"]').value,
-                        voted: voted3,
+                        voted: document.querySelector('[name="ref_voted"]').value,
                         good: document.querySelector('[name="ref_good"]').value,
                         bad: document.querySelector('[name="ref_bad"]').value
                     },
